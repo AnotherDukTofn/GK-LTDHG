@@ -1,0 +1,24 @@
+{
+    "items": [
+        {
+            "name": "Managers",
+            "componentType": "SpellStrike.Core.GameManager"
+        },
+        {
+            "name": "Managers",
+            "componentType": "SpellStrike.Combat.LootDropperService"
+        },
+        {
+            "name": "Managers",
+            "componentType": "SpellStrike.Combat.Spells.SpellPoolService"
+        },
+        {
+            "name": "Managers",
+            "componentType": "SpellStrike.Level.LevelManager"
+        },
+        {
+            "name": "Managers",
+            "componentType": "SpellStrike.Core.SaveManager"
+        }
+    ]
+}

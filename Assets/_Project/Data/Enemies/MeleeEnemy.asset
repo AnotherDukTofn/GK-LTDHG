@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e3f98f2a0b58844ac4698f0656b46a, type: 3}
+  m_Name: MeleeEnemy
+  m_EditorClassIdentifier: 
+  m_Id: 01
+  m_DisplayName: Skeleton Knight
+  m_Type: 0
+  m_HP: 200
+  m_Speed: 5
+  m_Damage: 7
+  m_AttackRange: 1.5
+  m_AttackRate: 1
+  m_PreferredDistanceMin: 0
+  m_PreferredDistanceMax: 0
+  m_DropTable: {fileID: 0}
+  m_Prefab: {fileID: 0}

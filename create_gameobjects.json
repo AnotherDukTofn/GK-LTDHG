@@ -1,0 +1,26 @@
+{
+    "items": [
+        {
+            "name": "Environment"
+        },
+        {
+            "name": "Ground",
+            "primitiveType": "Plane",
+            "parentName": "Environment",
+            "scaleX": 10,
+            "scaleY": 1,
+            "scaleZ": 10
+        },
+        {
+            "name": "Player",
+            "primitiveType": "Capsule",
+            "posY": 1
+        },
+        {
+            "name": "Managers"
+        },
+        {
+            "name": "UI"
+        }
+    ]
+}
