@@ -18,6 +18,10 @@ namespace SpellStrike.Player
         [Tooltip("Khoảng cách đẩy projectile ra phía trước mặt để tránh dính người.")]
         [SerializeField] private float m_SpawnForwardOffset = 0.5f;
 
+        [Header("Physics")]
+        [Tooltip("Layer mask dùng để raycast xuống mặt đất (Terrain, Environment). Nếu set Nothing, sẽ fall back về mặt phẳng ảo.")]
+        [SerializeField] private LayerMask m_GroundLayerMask = ~0;
+
         [Header("Global Events")]
         [SerializeField] private SpellDataEventChannelSO m_OnSpellEquippedChannel;
         // Event truyền float (ratio cooldown còn lại)
@@ -136,6 +140,14 @@ namespace SpellStrike.Player
             }
 
             Ray ray = m_Camera.ScreenPointToRay(m_Input.MousePosition);
+            
+            // 1. Thử raycast với Physics (Terrain/Ground)
+            if (m_GroundLayerMask.value != 0 && Physics.Raycast(ray, out RaycastHit hit, 1000f, m_GroundLayerMask))
+            {
+                return hit.point;
+            }
+
+            // 2. Fallback về mặt phẳng ảo
             Plane groundPlane = new Plane(Vector3.up, new Vector3(0, transform.position.y, 0));
 
             if (groundPlane.Raycast(ray, out float enter))

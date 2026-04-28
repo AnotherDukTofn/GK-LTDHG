@@ -73,9 +73,6 @@ namespace SpellStrike.Combat.Spells
                 targetPos = startPos + transform.forward * m_Data.Range;
             }
 
-            // Canh chuẩn y về mặt đất
-            targetPos.y = 0f;
-
             LobAsync(startPos, targetPos, m_SpellCts.Token).Forget();
         }
 
