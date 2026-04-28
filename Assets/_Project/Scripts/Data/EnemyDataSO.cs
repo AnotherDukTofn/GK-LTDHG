@@ -18,8 +18,9 @@ namespace SpellStrike.Data
         [SerializeField] private int m_HP;
         [SerializeField] private float m_Speed;
         [SerializeField] private float m_Damage;
-        [SerializeField] private float m_AttackRange;
+        [SerializeField] private float m_AttackRange = 1.5f;
         [SerializeField] private float m_AttackRate;
+        [SerializeField] private float m_DeathDestroyDelay = 1.5f;
 
         [Header("Ranged Only")]
         [SerializeField] private float m_PreferredDistanceMin;
@@ -44,6 +45,7 @@ namespace SpellStrike.Data
         public float Damage => m_Damage;
         public float AttackRange => m_AttackRange;
         public float AttackRate => m_AttackRate;
+        public float DeathDestroyDelay => m_DeathDestroyDelay;
         public float PreferredDistanceMin => m_PreferredDistanceMin;
         public float PreferredDistanceMax => m_PreferredDistanceMax;
 

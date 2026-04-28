@@ -73,6 +73,10 @@ namespace SpellStrike.Enemy
             if (m_Data != null)
             {
                 m_NavAgent.speed = m_Data.Speed;
+                // Thiết lập stoppingDistance bằng tầm đánh để NavAgent tự dừng đúng chỗ mượt mà
+                m_NavAgent.stoppingDistance = m_Data.AttackRange * 0.9f; 
+                m_NavAgent.acceleration = 20f; // Tăng gia tốc để quái linh hoạt hơn
+                
                 if (m_Health != null) m_Health.Initialize(m_Data.HP);
             }
         }
@@ -140,23 +144,65 @@ namespace SpellStrike.Enemy
 
         public void Die()
         {
+            Debug.Log($"[EnemyBase] {gameObject.name} is dying. Disabling colliders and NavMesh.");
+
+            // 1. Tắt toàn bộ Collider ở cha và các con
+            var colliders = GetComponentsInChildren<Collider>();
+            foreach (var c in colliders) c.enabled = false;
+
+            // 2. Tắt CharacterController nếu có
+            if (TryGetComponent<CharacterController>(out var cc)) cc.enabled = false;
+
+            // 3. Khóa Rigidbody để quái không bị rơi xuyên đất sau khi tắt Collider
+            if (TryGetComponent<Rigidbody>(out var rb))
+            {
+                rb.isKinematic = true; 
+                rb.useGravity = false;
+                rb.velocity = Vector3.zero;
+            }
+
+            // 4. Vô hiệu hóa NavMeshAgent để không cản đường AI khác
+            if (m_NavAgent != null)
+            {
+                if (m_NavAgent.isOnNavMesh) m_NavAgent.isStopped = true;
+                m_NavAgent.enabled = false;
+            }
+            
             // Trả quái về Pool, drop loot
-            // Chạy bởi EnemyDeadState
             Combat.LootDropperService.Instance?.TryDropEnemyLoot(transform.position, m_Data.DropTable);
 
-            // TODO: Bật anim Die v.v trước khi tắt
+            // Bật anim Die nếu có
+            if (m_Animator != null) m_Animator.SetTrigger("Die");
+            
+            // Thực hiện đếm ngược biến mất
             WaitAndReturnPoolAsync().Forget();
         }
 
         private async UniTaskVoid WaitAndReturnPoolAsync()
         {
-            // Giả lập thời gian tan xác
-            // _animator.SetTrigger("Die");
-            bool isCanceled = await UniTask.Delay(TimeSpan.FromSeconds(1.5f), cancellationToken: m_LifetimeCts.Token).SuppressCancellationThrow();
-            
-            if (isCanceled) return;
+            float delay = m_Data != null ? m_Data.DeathDestroyDelay : 1.5f;
+            Debug.Log($"[EnemyBase] {gameObject.name} will disappear in {delay} seconds.");
 
-            // Xóa object (Tạm dùng Destroy, hoặc Return Pool nếu có EnemyPool)
+            if (delay <= 0f)
+            {
+                DestroyEnemyInstance();
+                return;
+            }
+
+            // Dùng token của chính object này thay vì lifetime token nếu muốn chắc chắn biến mất 
+            // kể cả khi bị disable (trừ khi object bị xóa hoàn toàn trước đó)
+            bool isCanceled = await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: this.GetCancellationTokenOnDestroy()).SuppressCancellationThrow();
+            
+            if (!isCanceled)
+            {
+                DestroyEnemyInstance();
+            }
+        }
+
+        private void DestroyEnemyInstance()
+        {
+            Debug.Log($"[EnemyBase] Destroying {gameObject.name} now.");
+            // Tạm dùng Destroy, sau này có Pool thì gọi ReturnPool ở đây
             Destroy(gameObject);
         }
 

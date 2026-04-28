@@ -79,25 +79,45 @@ namespace SpellStrike.Player
         {
             m_IsDashing = true;
             
-            // Bật i-frame
-            if (m_StatusEffect != null && m_Config != null)
+            int playerLayer = gameObject.layer;
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            bool layersValid = playerLayer != -1 && enemyLayer != -1;
+
+            try 
             {
-                m_StatusEffect.ApplyInvincible(m_Config.DashIframeDuration);
+                // Bật i-frame
+                if (m_StatusEffect != null && m_Config != null)
+                {
+                    m_StatusEffect.ApplyInvincible(m_Config.DashIframeDuration);
+                }
+
+                // Tạm thời bỏ qua va chạm với quái để không đẩy quái đi
+                if (layersValid)
+                {
+                    Physics.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+                }
+
+                float timer = 0f;
+                float duration = DashDuration;
+                float speed = DashSpeed;
+
+                while (timer < duration)
+                {
+                    // Dùng CharacterController.Move để có collision checking (không xuyên tường)
+                    m_CharController.Move(_direction * (speed * Time.deltaTime));
+                    timer += Time.deltaTime;
+                    await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken: _token);
+                }
             }
-
-            float timer = 0f;
-            float duration = DashDuration;
-            float speed = DashSpeed;
-
-            while (timer < duration)
+            finally
             {
-                // Dùng CharacterController.Move để có collision checking (không xuyên tường)
-                m_CharController.Move(_direction * (speed * Time.deltaTime));
-                timer += Time.deltaTime;
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken: _token);
+                // Khôi phục va chạm
+                if (layersValid)
+                {
+                    Physics.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+                }
+                m_IsDashing = false;
             }
-
-            m_IsDashing = false;
         }
 
         #endregion

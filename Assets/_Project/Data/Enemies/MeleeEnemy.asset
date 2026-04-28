@@ -20,7 +20,8 @@ MonoBehaviour:
   m_Damage: 7
   m_AttackRange: 1.5
   m_AttackRate: 1
+  m_DeathDestroyDelay: 1.5
   m_PreferredDistanceMin: 0
   m_PreferredDistanceMax: 0
-  m_DropTable: {fileID: 0}
-  m_Prefab: {fileID: 0}
+  m_DropTable: {fileID: 11400000, guid: b0b605114951d76499c158adce0dc830, type: 2}
+  m_Prefab: {fileID: 1266908081871179482, guid: 077c7fcc7c4bd1544a06b04bf9ddebfe, type: 3}

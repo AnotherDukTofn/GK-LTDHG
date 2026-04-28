@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using SpellStrike.Core.EventChannels;
+using DG.Tweening;
 
 namespace SpellStrike.UI
 {
@@ -13,6 +14,9 @@ namespace SpellStrike.UI
         [SerializeField] private HPEventChannelSO m_HPEventChannel;
         [SerializeField] private Image m_HPFillImage;
         [SerializeField] private Image m_HPBackgroundImage;
+        [SerializeField] private float m_TweenDuration = 0.2f;
+
+        private Tween m_HBTween;
 
         private void OnEnable()
         {
@@ -28,9 +32,16 @@ namespace SpellStrike.UI
 
         private void OnHPChanged(HPData _data)
         {
+            Debug.Log($"[HPBarUI] Received HP Update: {_data.Current}/{_data.Max}");
             if (m_HPFillImage != null)
             {
-                m_HPFillImage.fillAmount = (float)_data.Current / _data.Max;
+                float targetFill = (float)_data.Current / _data.Max;
+                
+                // Kill existing tween if any
+                m_HBTween?.Kill();
+                
+                // Start a new tween for smooth fill
+                m_HBTween = m_HPFillImage.DOFillAmount(targetFill, m_TweenDuration).SetEase(Ease.OutQuad);
             }
         }
     }

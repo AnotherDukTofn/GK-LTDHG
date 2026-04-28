@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using SpellStrike.Core.EventChannels;
+using DG.Tweening;
 
 namespace SpellStrike.UI
 {
@@ -11,6 +12,9 @@ namespace SpellStrike.UI
         [SerializeField] private Image m_HPFillImage;
         [SerializeField] private Text m_EliteNameText;
         [SerializeField] private CanvasGroup m_CanvasGroup;
+        [SerializeField] private float m_TweenDuration = 0.25f;
+
+        private Tween m_HBTween;
 
         private void OnEnable()
         {
@@ -41,11 +45,18 @@ namespace SpellStrike.UI
 
         private void OnHPChanged(HPData _data)
         {
+            Debug.Log($"[EliteHPBarUI] Received Boss HP Update: {_data.Current}/{_data.Max}");
             if (m_CanvasGroup != null) m_CanvasGroup.alpha = 1f; // Hiện ra khi đánh boss
 
             if (m_HPFillImage != null)
             {
-                m_HPFillImage.fillAmount = (float)_data.Current / _data.Max;
+                float targetFill = (float)_data.Current / _data.Max;
+                
+                // Kill existing tween if any
+                m_HBTween?.Kill();
+                
+                // Start a new tween for smooth fill
+                m_HBTween = m_HPFillImage.DOFillAmount(targetFill, m_TweenDuration).SetEase(Ease.OutQuad);
             }
 
             if (_data.Current <= 0f)

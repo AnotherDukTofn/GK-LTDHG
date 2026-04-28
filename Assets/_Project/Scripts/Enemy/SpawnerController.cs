@@ -18,14 +18,41 @@ namespace SpellStrike.Enemy
         private bool m_IsActive = false;
         private CancellationTokenSource m_SpawnCts;
 
+        private void Awake()
+        {
+            if (m_Health == null) m_Health = GetComponent<Combat.HealthComponent>() ?? GetComponentInChildren<Combat.HealthComponent>();
+        }
+
         private void OnEnable()
         {
+            if (m_Health != null)
+                m_Health.OnDeathLocal += Die;
+            
             StartSpawn();
         }
 
         private void OnDisable()
         {
+            if (m_Health != null)
+                m_Health.OnDeathLocal -= Die;
+            
             StopSpawn();
+        }
+
+        private void Start()
+        {
+            if (m_Health != null && m_Data != null)
+            {
+                m_Health.Initialize(m_Data.HP);
+            }
+
+            // Thiết lập bỏ qua va chạm giữa Spawner và Enemy
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            int spawnerLayer = gameObject.layer;
+            if (enemyLayer != -1 && spawnerLayer != -1)
+            {
+                Physics.IgnoreLayerCollision(spawnerLayer, enemyLayer, true);
+            }
         }
 
         public void StartSpawn()
@@ -61,49 +88,34 @@ namespace SpellStrike.Enemy
 
             while (m_IsActive)
             {
-                int currentSpawnCount = UnityEngine.Random.Range(m_Data.SpawnCountMin, m_Data.SpawnCountMax + 1);
-                for (int i = 0; i < currentSpawnCount; i++)
+                // Mỗi lần chỉ spawn 1 enemy duy nhất
+                if (m_Data.EnemyPool != null && m_Data.EnemyPool.Count > 0)
                 {
-                    if (m_Data.EnemyPool != null && m_Data.EnemyPool.Count > 0)
-                    {
-                        SpawnEnemy(m_Data.EnemyPool[UnityEngine.Random.Range(0, m_Data.EnemyPool.Count)].Prefab);
-                    }
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.2f), cancellationToken: _token); // Giãn cách spawn giữa các con trong 1 wave
+                    SpawnEnemy(m_Data.EnemyPool[UnityEngine.Random.Range(0, m_Data.EnemyPool.Count)].Prefab);
                 }
 
+                // Đợi đến đợt spawn tiếp theo
                 await UniTask.Delay(TimeSpan.FromSeconds(m_Data.SpawnInterval), cancellationToken: _token);
             }
         }
 
         private void SpawnEnemy(GameObject prefab)
         {
-            // Tạm thời Instantiate. Cần Pool sau.
-            // Lấy vị trí ngẫu nhiên xung quanh spawner
-            Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * m_Data.SpawnRadius;
-            Vector3 spawnPos = transform.position + new Vector3(randomCircle.x, 0f, randomCircle.y);
-
+            // Spawn trực tiếp tại vị trí Spawner (không dùng radius offset)
+            Vector3 spawnPos = transform.position;
             Instantiate(prefab, spawnPos, Quaternion.identity);
         }
 
         // Logic phá hủy Spawner
         public void Die()
         {
+            Debug.Log($"[SpawnerController] Spawner {gameObject.name} destroyed!");
             StopSpawn();
-            // Báo cho LevelManager (Phase 5)
-            // Thả loot: Chắc chắn drop phép (Spell) theo yêu cầu
-            if (m_Data.DropTable != null)
+            
+            // Thả loot: Chắc chắn drop phép (Spell) hoặc vật phẩm theo data
+            if (m_Data != null && m_Data.DropTable != null)
             {
-                // Tìm trong bảng drop món nào là Spell để drop chắc chắn
-                var spellEntry = m_Data.DropTable.LootEntries.Find(e => e.ItemType == DropItemType.SpellRandom);
-                if (spellEntry != null && spellEntry.Prefab != null)
-                {
-                    Combat.LootDropperService.Instance?.DropPrefab(transform.position, spellEntry.Prefab);
-                }
-                else
-                {
-                    // Nếu không tìm thấy Spell cụ thể trong bàn, dùng logic Roll bình thường (nhưng spawner nên có spell)
-                    Combat.LootDropperService.Instance?.TryDropLoot(transform.position, m_Data.DropTable);
-                }
+                Combat.LootDropperService.Instance?.TryDropEnemyLoot(transform.position, m_Data.DropTable);
             }
 
             Destroy(gameObject);

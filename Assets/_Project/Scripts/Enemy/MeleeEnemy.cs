@@ -42,9 +42,14 @@ namespace SpellStrike.Enemy
             Collider[] hits = Physics.OverlapSphere(transform.position + transform.forward, m_Data.AttackRange);
             foreach (var hit in hits)
             {
-                if (hit.CompareTag("Player") && hit.TryGetComponent<Combat.HealthComponent>(out var hp))
+                if (hit.CompareTag("Player"))
                 {
-                    hp.TakeDamage((int)m_Data.Damage);
+                    // Tìm HealthComponent ở object đó hoặc cha/con của nó
+                    var hp = hit.GetComponentInParent<Combat.HealthComponent>() ?? hit.GetComponentInChildren<Combat.HealthComponent>();
+                    if (hp != null)
+                    {
+                        hp.TakeDamage((int)m_Data.Damage);
+                    }
                 }
             }
         }

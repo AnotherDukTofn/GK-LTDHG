@@ -56,6 +56,16 @@ namespace SpellStrike.Player
             }
         }
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (Application.isPlaying)
+            {
+                RaiseEvent();
+            }
+        }
+#endif
+
         #endregion
 
         #region Public Methods

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c97012ced571c074d8d9f95fe0e64653, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  PlayerMaxHP: 100
+  PlayerMaxHP: 500
   PlayerMaxStamina: 100
   PlayerMoveSpeed: 5
   PlayerRotateSpeed: 2880

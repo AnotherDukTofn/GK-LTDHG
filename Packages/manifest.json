@@ -3,6 +3,7 @@
     "com.besty.unity-skills": "https://github.com/Besty0728/Unity-Skills.git?path=/SkillsForUnity",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.figma.unity-importer": "https://github.com/zasuozz-oss/figma-to-unity.git?path=/UnityFigImporter",
+    "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "1.1.7",
     "com.unity.collab-proxy": "2.12.4",
     "com.unity.feature.development": "1.0.1",

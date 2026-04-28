@@ -51,6 +51,17 @@ namespace SpellStrike.Combat
             m_StatusEffect = GetComponent<StatusEffectController>();
         }
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            // Cập nhật UI ngay cả khi chỉnh tay trong Inspector lúc đang Play
+            if (Application.isPlaying)
+            {
+                RaiseHPChangeEvent();
+            }
+        }
+#endif
+
         #endregion
 
         #region Public Methods

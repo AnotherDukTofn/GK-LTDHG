@@ -19,12 +19,12 @@ MonoBehaviour:
   m_Category: 0
   m_Behavior: 0
   m_InputType: 0
-  m_Damage: 20
+  m_Damage: 50
   m_Cooldown: 1
-  m_Range: 3
+  m_Range: 5
   m_BehaviorParams:
     ProjectileSpeed: 20
-    AoeRadius: 3
+    AoeRadius: 5
     ConeAngle: 0
     ConeRadius: 0
     TickRate: 0

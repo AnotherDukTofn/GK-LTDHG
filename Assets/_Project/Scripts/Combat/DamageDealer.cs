@@ -38,10 +38,17 @@ namespace SpellStrike.Combat
             // Kiểm tra layer match
             if (((1 << _other.gameObject.layer) & m_TargetLayers) != 0)
             {
-                if (_other.TryGetComponent<HealthComponent>(out var health))
+                // Tìm HealthComponent ở object đó hoặc cha/con của nó để tránh sót
+                var health = _other.GetComponentInParent<HealthComponent>() ?? _other.GetComponentInChildren<HealthComponent>();
+                if (health != null)
                 {
                     int finalDamage = Mathf.RoundToInt(m_BaseDamage * m_ScalingMult);
+                    Debug.Log($"[DamageDealer] {gameObject.name} hit {_other.name}, dealing {finalDamage} damage.");
                     health.TakeDamage(finalDamage);
+                }
+                else
+                {
+                    Debug.LogWarning($"[DamageDealer] {gameObject.name} hit {_other.name} but no HealthComponent found.");
                 }
             }
         }

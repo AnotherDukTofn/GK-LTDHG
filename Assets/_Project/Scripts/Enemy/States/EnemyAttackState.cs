@@ -16,26 +16,30 @@ namespace SpellStrike.Enemy.States
 
         public override void Enter()
         {
-            // Reset timer để đánh ngay đòn đầu nếu muốn, hoặc chờ
-            m_AttackTimer = m_AttackCooldown; // Tạm thiết kế đánh ngay đòn đầu
+            // Bắt đầu hồi chiêu từ 0 để có thể đánh ngay lập tức khi vừa chạm vào tầm đánh
+            m_AttackTimer = 0f; 
             
-            if (m_Enemy.NavAgent.isOnNavMesh)
-            {
-                m_Enemy.NavAgent.isStopped = true;
-            }
+            // Không nên set isStopped cứng ở đây nếu muốn quái vẫn nhích theo player
+            // Ta sẽ xử lý dừng ở phần Action hoặc qua stoppingDistance
         }
 
         public override void Action()
         {
-            // Xoay mặt về hướng player
-            if (m_Enemy.PlayerTarget != null)
+            if (m_Enemy.PlayerTarget == null) return;
+
+            // Vẫn cho phép NavAgent bám đuổi nhẹ nếu ở trong AttackState nhưng chưa quá sát
+            // hoặc đơn giản là để stoppingDistance của NavMeshAgent tự lo.
+            if (m_Enemy.NavAgent.isOnNavMesh)
             {
-                Vector3 dir = (m_Enemy.PlayerTarget.position - m_Enemy.transform.position).normalized;
-                dir.y = 0f;
-                if (dir.sqrMagnitude > 0.01f)
-                {
-                    m_Enemy.transform.rotation = Quaternion.Slerp(m_Enemy.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 5f);
-                }
+                m_Enemy.NavAgent.SetDestination(m_Enemy.PlayerTarget.position);
+            }
+
+            // Xoay mặt về hướng player
+            Vector3 dir = (m_Enemy.PlayerTarget.position - m_Enemy.transform.position).normalized;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.01f)
+            {
+                m_Enemy.transform.rotation = Quaternion.Slerp(m_Enemy.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 7f);
             }
 
             m_AttackTimer -= Time.deltaTime;

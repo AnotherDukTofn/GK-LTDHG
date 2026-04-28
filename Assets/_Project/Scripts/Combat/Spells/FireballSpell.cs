@@ -122,8 +122,10 @@ namespace SpellStrike.Combat.Spells
                 sphere.radius = m_Data.BehaviorParams.AoeRadius;
             }
             col.enabled = true;
+            Debug.Log($"[FireballSpell] Explosion activated at {transform.position}");
 
-            bool isCanceled = await UniTask.WaitForFixedUpdate(cancellationToken: _token).SuppressCancellationThrow();
+            // Đợi một khoảng ngắn (0.1s) thay vì chỉ 1 frame vật lý để đảm bảo engine kịp scan trúng quái
+            bool isCanceled = await UniTask.Delay(System.TimeSpan.FromSeconds(0.1f), cancellationToken: _token).SuppressCancellationThrow();
             
             if (isCanceled) return;
 
