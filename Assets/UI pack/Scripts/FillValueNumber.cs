@@ -1,15 +1,3 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-
-public class FillValueNumber : MonoBehaviour
-{
-    public Image TargetImage;
-    // Update is called once per frame
-    void Update()
-    {
-        float amount = TargetImage.fillAmount * 100;
-        gameObject.GetComponent<Text>().text = amount.ToString("F0");
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:33b294bd9d3b815503389fb1ded7a6343581902865006a82da40a6b4d698e88c
+size 376

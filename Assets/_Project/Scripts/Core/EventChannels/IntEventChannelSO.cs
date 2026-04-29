@@ -1,22 +1,3 @@
-using UnityEngine;
-
-namespace SpellStrike.Core.EventChannels
-{
-    [CreateAssetMenu(menuName = "Events/Int Event Channel")]
-    public class IntEventChannelSO : ScriptableObject
-    {
-        #region Private Fields
-
-        private System.Action<int> m_OnEventRaised;
-
-        #endregion
-
-        #region Public Methods
-
-        public void RaiseEvent(int _value) => m_OnEventRaised?.Invoke(_value);
-        public void Subscribe(System.Action<int> _listener) => m_OnEventRaised += _listener;
-        public void Unsubscribe(System.Action<int> _listener) => m_OnEventRaised -= _listener;
-
-        #endregion
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:910e13b02b0c5d5c99e8062bf852b0f3e1120e39b92303bb116df2164f543bc1
+size 612

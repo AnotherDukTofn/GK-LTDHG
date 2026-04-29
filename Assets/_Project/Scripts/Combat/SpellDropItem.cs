@@ -1,20 +1,3 @@
-using UnityEngine;
-using SpellStrike.Data;
-
-namespace SpellStrike.Combat
-{
-    public class SpellDropItem : DropItem
-    {
-        [SerializeField] private SpellDataSO m_SpellReward;
-
-        protected override void OnPickup(Player.PlayerController _player)
-        {
-            if (m_SpellReward != null)
-            {
-                // Gọi Event trang bị luôn lúc lụm 
-                // (Chờ Unlock logic phase sau nếu muốn chọn lọc)
-                _player.GetComponent<Player.PlayerSpellController>()?.EquipSpell(m_SpellReward);
-            }
-        }
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:ddd57198b92492807fa51fb356a47aad63e52e59ed91f7dc80b5dca148daefa4
+size 578

@@ -1,22 +1,3 @@
-using UnityEngine;
-
-namespace SpellStrike.Core.EventChannels
-{
-    [CreateAssetMenu(menuName = "Events/Float Event Channel")]
-    public class FloatEventChannelSO : ScriptableObject
-    {
-        #region Private Fields
-
-        private System.Action<float> m_OnEventRaised;
-
-        #endregion
-
-        #region Public Methods
-
-        public void RaiseEvent(float _value) => m_OnEventRaised?.Invoke(_value);
-        public void Subscribe(System.Action<float> _listener) => m_OnEventRaised += _listener;
-        public void Unsubscribe(System.Action<float> _listener) => m_OnEventRaised -= _listener;
-
-        #endregion
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:d12d52540925fc69b4607fad939efa200fddd0066b078a597b364e41752fe2ca
+size 624

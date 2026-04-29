@@ -1,19 +1,3 @@
-using SpellStrike.Core.StateMachine;
-
-namespace SpellStrike.Player
-{
-    public abstract class PlayerBaseState : IState
-    {
-        protected readonly PlayerController m_Player;
-
-        public PlayerBaseState(PlayerController _player)
-        {
-            m_Player = _player;
-        }
-
-        public virtual void Enter() { }
-        public virtual void Action() { }
-        public virtual void FixedAction() { }
-        public virtual void Exit() { }
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6c6f3dced87d505e22203beea5d401717480bf451d4e983c96828168ea17cb1a
+size 457

@@ -1,23 +1,3 @@
-# Unity - Editor
-
-**Pages:** 3
-
----
-
-## Unity - Manual: Create custom Editors with IMGUI
-
-**URL:** https://docs.unity3d.com/Manual/editor-CustomEditors.html
-
----
-
-## Unity - Manual: Create custom Editor Windows with IMGUI
-
-**URL:** https://docs.unity3d.com/Manual/editor-EditorWindows.html
-
----
-
-## Unity - Manual: Extending the Editor with IMGUI
-
-**URL:** https://docs.unity3d.com/Manual/ExtendingTheEditor.html
-
----
+version https://git-lfs.github.com/spec/v1
+oid sha256:96c8ae42d18d23538c018b0c0a1962263f12ffbf7eb76245ca81416cacbba153
+size 418

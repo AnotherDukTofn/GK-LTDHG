@@ -1,24 +1,3 @@
-using UnityEngine;
-
-namespace SpellStrike.Data
-{
-    [CreateAssetMenu(menuName = "Data/LootBox Data")]
-    public class LootBoxDataSO : ScriptableObject
-    {
-        #region Serialized Fields
-
-        [SerializeField] private int m_HP = 30;
-        [SerializeField] private DropTableSO m_DropTable;
-        [SerializeField] private bool m_BlocksPathfinding;
-
-        #endregion
-
-        #region Public Properties
-
-        public int HP => m_HP;
-        public DropTableSO DropTable => m_DropTable;
-        public bool BlocksPathfinding => m_BlocksPathfinding;
-
-        #endregion
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:b372032a02800fd60e0fd41cfdb48a72a4761595268ddeb63944202944d74cc9
+size 585
