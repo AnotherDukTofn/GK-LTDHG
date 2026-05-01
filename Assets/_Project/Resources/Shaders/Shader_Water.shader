@@ -57,7 +57,7 @@ Shader "Custom/StylizedWater"
                 
                 half4 _FoamColor;
                 float _FoamAmount;
-                float _FoamCutoff;
+                float _FoamSharpness;
                 
                 float _WaveSpeed;
                 float _WaveScale;
@@ -68,9 +68,10 @@ Shader "Custom/StylizedWater"
             {
                 Varyings output = (Varyings)0;
                 
-                // Vertex animation
+                // Vertex wave animation
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float wave = sin(positionWS.x * _WaveScale + _Time.y * _WaveSpeed) + cos(positionWS.z * _WaveScale + _Time.y * _WaveSpeed);
+                float wave = sin(positionWS.x * _WaveScale + _Time.y * _WaveSpeed) 
+                           + cos(positionWS.z * _WaveScale + _Time.y * _WaveSpeed);
                 positionWS.y += wave * _WaveHeight;
                 
                 output.positionWS = positionWS;
@@ -83,39 +84,51 @@ Shader "Custom/StylizedWater"
 
             half4 frag (Varyings input) : SV_Target
             {
-                // Calculate screen position
+                // Screen UV for depth sampling
                 float2 screenUV = input.screenPos.xy / input.screenPos.w;
                 
-                // Sample depth texture
+                // Sample scene depth
                 float rawDepth = SampleSceneDepth(screenUV);
                 
-                // Calculate depth difference mathematically perfect for both Ortho and Perspective
+                // Calculate depth difference (supports both Ortho and Perspective)
                 float depthDiff;
-                if (unity_OrthoParams.w > 0.5) 
+                
+                if (unity_OrthoParams.w > 0.5)
                 {
+                    // --- Orthographic camera ---
+                    // In ortho, depth buffer is linear [0,1] mapped to [near, far]
+                    float sceneDepthOrtho;
                     #if UNITY_REVERSED_Z
-                        float depthDiffClip = input.positionCS.z - rawDepth;
+                        sceneDepthOrtho = lerp(_ProjectionParams.z, _ProjectionParams.y, rawDepth);
                     #else
-                        float depthDiffClip = rawDepth - input.positionCS.z;
+                        sceneDepthOrtho = lerp(_ProjectionParams.y, _ProjectionParams.z, rawDepth);
                     #endif
-                    depthDiff = max(0, depthDiffClip * (_ProjectionParams.z - _ProjectionParams.y));
-                } 
-                else 
+                    
+                    // Surface depth in ortho: use view-space Z
+                    float surfDepthOrtho = -TransformWorldToView(float4(input.positionWS, 1.0)).z;
+                    depthDiff = max(0, sceneDepthOrtho - surfDepthOrtho);
+                }
+                else
                 {
+                    // --- Perspective camera ---
                     float sceneZ = LinearEyeDepth(rawDepth, _ZBufferParams);
                     float surfZ = input.screenPos.w;
                     depthDiff = max(0, sceneZ - surfZ);
                 }
                 
-                float noise = sin(input.positionWS.x * 5.0 + _Time.y * 3.0) * cos(input.positionWS.z * 5.0 + _Time.y * 2.0);
-                float foam = 1.0 - saturate((depthDiff + noise * 0.2) / _FoamAmount);
-                foam = step(_FoamCutoff, foam); 
+                // Foam: procedural noise along edges
+                float noise = sin(input.positionWS.x * 5.0 + _Time.y * 3.0) 
+                            * cos(input.positionWS.z * 5.0 + _Time.y * 2.0);
+                float foamRaw = 1.0 - saturate(depthDiff / _FoamAmount);
+                foamRaw = saturate(foamRaw + noise * 0.15);
+                float foam = step(_FoamSharpness, foamRaw);
                 
+                // Water color gradient (shallow -> deep)
                 float depthGradient = saturate(depthDiff / _DepthDistance);
                 half4 waterColor = lerp(_ShallowColor, _DepthColor, depthGradient);
                 
+                // Composite: overlay foam on water
                 half4 finalColor = lerp(waterColor, _FoamColor, foam);
-                
                 finalColor.a = lerp(waterColor.a, 1.0, foam);
                 
                 return finalColor;
