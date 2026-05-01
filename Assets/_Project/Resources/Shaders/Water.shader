@@ -8,7 +8,7 @@ Shader "Custom/StylizedWater"
         
         _FoamColor ("Foam Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _FoamAmount ("Foam Amount", Range(0.01, 5.0)) = 0.5
-        _FoamCutoff ("Foam Edge Hardness", Range(0.0, 1.0)) = 0.5
+        _FoamSharpness ("Foam Sharpness", Range(0.0, 1.0)) = 0.5
         
         _WaveSpeed ("Wave Speed", Float) = 1.0
         _WaveScale ("Wave Scale", Float) = 1.0
@@ -89,24 +89,26 @@ Shader "Custom/StylizedWater"
                 // Sample depth texture
                 float rawDepth = SampleSceneDepth(screenUV);
                 
-                // Calculate eye depth based on camera projection (Orthographic vs Perspective)
-                bool isOrtho = unity_OrthoParams.w == 1.0;
-                float sceneZ;
+                // Calculate depth difference mathematically perfect for both Ortho and Perspective
+                float depthDiff;
+                if (unity_OrthoParams.w > 0.5) 
+                {
+                    #if UNITY_REVERSED_Z
+                        float depthDiffClip = input.positionCS.z - rawDepth;
+                    #else
+                        float depthDiffClip = rawDepth - input.positionCS.z;
+                    #endif
+                    depthDiff = max(0, depthDiffClip * (_ProjectionParams.z - _ProjectionParams.y));
+                } 
+                else 
+                {
+                    float sceneZ = LinearEyeDepth(rawDepth, _ZBufferParams);
+                    float surfZ = input.screenPos.w;
+                    depthDiff = max(0, sceneZ - surfZ);
+                }
                 
-                #if UNITY_REVERSED_Z
-                    sceneZ = isOrtho ? lerp(_ProjectionParams.z, _ProjectionParams.y, rawDepth) : LinearEyeDepth(rawDepth, _ZBufferParams);
-                #else
-                    sceneZ = isOrtho ? lerp(_ProjectionParams.y, _ProjectionParams.z, rawDepth) : LinearEyeDepth(rawDepth, _ZBufferParams);
-                #endif
-                
-                // Surface depth (w component is eye depth in perspective; in ortho we use view space Z)
-                float surfZ = isOrtho ? -TransformWorldToView(input.positionWS).z : input.screenPos.w;
-                
-                float depthDiff = max(0, sceneZ - surfZ);
-                
-                float foam = 1.0 - saturate(depthDiff / _FoamAmount);
                 float noise = sin(input.positionWS.x * 5.0 + _Time.y * 3.0) * cos(input.positionWS.z * 5.0 + _Time.y * 2.0);
-                foam = saturate(foam + noise * 0.2);
+                float foam = 1.0 - saturate((depthDiff + noise * 0.2) / _FoamAmount);
                 foam = step(_FoamCutoff, foam); 
                 
                 float depthGradient = saturate(depthDiff / _DepthDistance);
